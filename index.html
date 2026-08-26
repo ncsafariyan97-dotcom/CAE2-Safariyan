@@ -1,0 +1,785 @@
+
+html_content = '''<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CAE Interactive Poster - Ensieh Safarian</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@300;400;600;700;900&family=Playfair+Display:wght@400;600;700;900&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        'vazir': ['Vazirmatn', 'sans-serif'],
+                        'playfair': ['Playfair Display', 'serif'],
+                        'inter': ['Inter', 'sans-serif'],
+                    },
+                    colors: {
+                        'cae-navy': '#0f172a',
+                        'cae-gold': '#d4af37',
+                        'cae-gold-light': '#f4e4a6',
+                        'cae-slate': '#1e293b',
+                        'cae-cream': '#fefce8',
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            font-family: 'Vazirmatn', 'Inter', sans-serif;
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #0f172a 100%);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+        
+        .glass-panel {
+            background: rgba(30, 41, 59, 0.7);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(212, 175, 55, 0.2);
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+        }
+        
+        .gold-gradient-text {
+            background: linear-gradient(135deg, #d4af37 0%, #f4e4a6 50%, #d4af37 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        .slide {
+            display: none;
+            animation: slideIn 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        
+        .slide.active {
+            display: block;
+        }
+        
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateY(30px) scale(0.98); }
+            to { opacity: 1; transform: translateY(0) scale(1); }
+        }
+        
+        .answer-reveal {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.5s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.4s ease;
+            opacity: 0;
+        }
+        
+        .answer-reveal.show {
+            max-height: 500px;
+            opacity: 1;
+        }
+        
+        .nav-btn {
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .nav-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(212, 175, 55, 0.3), transparent);
+            transition: left 0.5s ease;
+        }
+        
+        .nav-btn:hover::before {
+            left: 100%;
+        }
+        
+        .nav-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px -5px rgba(212, 175, 55, 0.3);
+        }
+        
+        .activity-card {
+            transition: all 0.3s ease;
+            border: 1px solid rgba(212, 175, 55, 0.15);
+        }
+        
+        .activity-card:hover {
+            border-color: rgba(212, 175, 55, 0.4);
+            transform: translateX(-5px);
+            box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.3);
+        }
+        
+        .reveal-btn {
+            background: linear-gradient(135deg, rgba(212, 175, 55, 0.2), rgba(212, 175, 55, 0.05));
+            border: 1px solid rgba(212, 175, 55, 0.4);
+            transition: all 0.3s ease;
+        }
+        
+        .reveal-btn:hover {
+            background: linear-gradient(135deg, rgba(212, 175, 55, 0.4), rgba(212, 175, 55, 0.2));
+            transform: scale(1.02);
+        }
+        
+        .particle {
+            position: fixed;
+            pointer-events: none;
+            opacity: 0.3;
+            animation: float 20s infinite linear;
+        }
+        
+        @keyframes float {
+            0% { transform: translateY(100vh) rotate(0deg); opacity: 0; }
+            10% { opacity: 0.3; }
+            90% { opacity: 0.3; }
+            100% { transform: translateY(-100vh) rotate(720deg); opacity: 0; }
+        }
+        
+        .progress-bar {
+            background: linear-gradient(90deg, #d4af37, #f4e4a6, #d4af37);
+            background-size: 200% 100%;
+            animation: shimmer 2s infinite;
+        }
+        
+        @keyframes shimmer {
+            0% { background-position: -200% 0; }
+            100% { background-position: 200% 0; }
+        }
+        
+        .number-badge {
+            background: linear-gradient(135deg, #d4af37, #b8941f);
+            box-shadow: 0 4px 15px -3px rgba(212, 175, 55, 0.4);
+        }
+        
+        .divider-gold {
+            height: 2px;
+            background: linear-gradient(90deg, transparent, #d4af37, transparent);
+        }
+    </style>
+</head>
+<body class="text-gray-100">
+    <!-- Floating Particles -->
+    <div class="particle text-cae-gold text-4xl" style="left: 10%; animation-delay: 0s;"><i class="fas fa-star"></i></div>
+    <div class="particle text-cae-gold text-2xl" style="left: 30%; animation-delay: 5s;"><i class="fas fa-book"></i></div>
+    <div class="particle text-cae-gold text-3xl" style="left: 50%; animation-delay: 10s;"><i class="fas fa-graduation-cap"></i></div>
+    <div class="particle text-cae-gold text-2xl" style="left: 70%; animation-delay: 15s;"><i class="fas fa-pen-fancy"></i></div>
+    <div class="particle text-cae-gold text-4xl" style="left: 90%; animation-delay: 8s;"><i class="fas fa-star"></i></div>
+
+    <div class="min-h-screen flex flex-col items-center justify-center p-4 md:p-8">
+        
+        <!-- Main Container -->
+        <div class="w-full max-w-5xl glass-panel rounded-3xl overflow-hidden relative">
+            
+            <!-- Header -->
+            <div class="relative bg-gradient-to-b from-cae-slate/80 to-transparent p-8 border-b border-cae-gold/20">
+                <div class="absolute top-0 left-0 w-full h-1 progress-bar"></div>
+                <div class="flex flex-col md:flex-row justify-between items-center gap-4">
+                    <div class="text-center md:text-right">
+                        <div class="flex items-center gap-3 justify-center md:justify-start mb-2">
+                            <span class="px-4 py-1 rounded-full border border-cae-gold/40 text-cae-gold text-sm font-bold tracking-wider">CAE LEVEL</span>
+                            <span class="px-4 py-1 rounded-full border border-cae-gold/40 text-cae-gold text-sm font-bold tracking-wider">UNIT 4</span>
+                        </div>
+                        <h1 class="text-3xl md:text-5xl font-playfair font-bold gold-gradient-text mb-2">Work Time</h1>
+                        <p class="text-gray-400 text-lg">صفحات ۵۴ و ۵۵ — Ready for CAE</p>
+                    </div>
+                    <div class="text-center md:text-left">
+                        <div class="w-16 h-16 rounded-full bg-gradient-to-br from-cae-gold to-yellow-600 flex items-center justify-center mx-auto md:mx-0 mb-2 shadow-lg shadow-yellow-900/50">
+                            <i class="fas fa-chalkboard-teacher text-cae-navy text-2xl"></i>
+                        </div>
+                        <p class="text-cae-gold-light font-bold text-lg">Teacher</p>
+                        <p class="text-white font-semibold text-xl">Ensieh Safarian</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Slide Counter -->
+            <div class="flex justify-center gap-2 py-4 bg-black/20">
+                <button onclick="goToSlide(0)" class="slide-dot w-3 h-3 rounded-full bg-cae-gold/30 hover:bg-cae-gold transition-all duration-300" data-slide="0"></button>
+                <button onclick="goToSlide(1)" class="slide-dot w-3 h-3 rounded-full bg-cae-gold/30 hover:bg-cae-gold transition-all duration-300" data-slide="1"></button>
+                <button onclick="goToSlide(2)" class="slide-dot w-3 h-3 rounded-full bg-cae-gold/30 hover:bg-cae-gold transition-all duration-300" data-slide="2"></button>
+                <button onclick="goToSlide(3)" class="slide-dot w-3 h-3 rounded-full bg-cae-gold/30 hover:bg-cae-gold transition-all duration-300" data-slide="3"></button>
+                <button onclick="goToSlide(4)" class="slide-dot w-3 h-3 rounded-full bg-cae-gold/30 hover:bg-cae-gold transition-all duration-300" data-slide="4"></button>
+                <button onclick="goToSlide(5)" class="slide-dot w-3 h-3 rounded-full bg-cae-gold/30 hover:bg-cae-gold transition-all duration-300" data-slide="5"></button>
+                <button onclick="goToSlide(6)" class="slide-dot w-3 h-3 rounded-full bg-cae-gold/30 hover:bg-cae-gold transition-all duration-300" data-slide="6"></button>
+            </div>
+
+            <!-- Content Area -->
+            <div class="p-6 md:p-10 min-h-[600px]">
+                
+                <!-- SLIDE 0: Cover -->
+                <div class="slide active" data-index="0">
+                    <div class="flex flex-col items-center justify-center h-full py-12 text-center">
+                        <div class="mb-8 relative">
+                            <div class="absolute inset-0 bg-cae-gold/20 blur-3xl rounded-full"></div>
+                            <i class="fas fa-crown text-8xl text-cae-gold relative z-10 drop-shadow-2xl"></i>
+                        </div>
+                        <h2 class="text-4xl md:text-6xl font-playfair font-bold text-white mb-6">Interactive Review</h2>
+                        <p class="text-xl text-gray-300 max-w-2xl mb-8 leading-relaxed">
+                            پوستر تعاملی مرور مطالب <span class="text-cae-gold font-bold">Unit 4: Work Time</span><br>
+                            برای مشاهده جواب‌ها روی دکمه‌های طلایی کلیک کنید
+                        </p>
+                        <div class="grid grid-cols-2 md:grid-cols-4 gap-4 w-full max-w-3xl">
+                            <div class="bg-white/5 border border-cae-gold/20 rounded-xl p-4 text-center hover:bg-white/10 transition-all">
+                                <i class="fas fa-spell-check text-cae-gold text-2xl mb-2"></i>
+                                <p class="text-sm text-gray-300">Use of English</p>
+                            </div>
+                            <div class="bg-white/5 border border-cae-gold/20 rounded-xl p-4 text-center hover:bg-white/10 transition-all">
+                                <i class="fas fa-headphones text-cae-gold text-2xl mb-2"></i>
+                                <p class="text-sm text-gray-300">Listening 2</p>
+                            </div>
+                            <div class="bg-white/5 border border-cae-gold/20 rounded-xl p-4 text-center hover:bg-white/10 transition-all">
+                                <i class="fas fa-clock text-cae-gold text-2xl mb-2"></i>
+                                <p class="text-sm text-gray-300">Vocabulary: Time</p>
+                            </div>
+                            <div class="bg-white/5 border border-cae-gold/20 rounded-xl p-4 text-center hover:bg-white/10 transition-all">
+                                <i class="fas fa-pen text-cae-gold text-2xl mb-2"></i>
+                                <p class="text-sm text-gray-300">Writing 2</p>
+                            </div>
+                        </div>
+                        <button onclick="nextSlide()" class="mt-10 px-8 py-3 bg-gradient-to-r from-cae-gold to-yellow-600 text-cae-navy font-bold rounded-full hover:shadow-lg hover:shadow-yellow-500/30 transition-all transform hover:scale-105">
+                            شروع کنید <i class="fas fa-arrow-left mr-2"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- SLIDE 1: Use of English Ex 1 -->
+                <div class="slide" data-index="1">
+                    <div class="flex items-center gap-4 mb-6">
+                        <div class="number-badge w-12 h-12 rounded-xl flex items-center justify-center text-cae-navy font-bold text-xl">۱</div>
+                        <div>
+                            <h3 class="text-2xl font-bold text-white">Use of English: Gapped Sentences</h3>
+                            <p class="text-cae-gold">Exercise 1 — Collocations (Page 54)</p>
+                        </div>
+                    </div>
+                    <div class="divider-gold mb-6"></div>
+                    <p class="text-gray-300 mb-6">کلمات: <span class="inline-flex gap-2 flex-wrap"><span class="px-3 py-1 bg-cae-gold/10 border border-cae-gold/30 rounded-lg text-cae-gold-light text-sm">favour</span><span class="px-3 py-1 bg-cae-gold/10 border border-cae-gold/30 rounded-lg text-cae-gold-light text-sm">role</span><span class="px-3 py-1 bg-cae-gold/10 border border-cae-gold/30 rounded-lg text-cae-gold-light text-sm">ranks</span><span class="px-3 py-1 bg-cae-gold/10 border border-cae-gold/30 rounded-lg text-cae-gold-light text-sm">pressure</span><span class="px-3 py-1 bg-cae-gold/10 border border-cae-gold/30 rounded-lg text-cae-gold-light text-sm">notice</span><span class="px-3 py-1 bg-cae-gold/10 border border-cae-gold/30 rounded-lg text-cae-gold-light text-sm">grudge</span><span class="px-3 py-1 bg-cae-gold/10 border border-cae-gold/30 rounded-lg text-cae-gold-light text-sm">position</span><span class="px-3 py-1 bg-cae-gold/10 border border-cae-gold/30 rounded-lg text-cae-gold-light text-sm">contract</span></span></p>
+                    
+                    <div class="grid gap-3">
+                        <div class="activity-card bg-white/5 rounded-xl p-4 flex items-center justify-between">
+                            <span class="text-gray-200">۱. to bear someone a <span class="text-cae-gold/50">_____</span></span>
+                            <button onclick="toggleAnswer(this)" class="reveal-btn px-4 py-2 rounded-lg text-cae-gold text-sm font-semibold">نمایش جواب</button>
+                            <div class="answer-reveal hidden w-full mt-2"><span class="text-cae-gold font-bold text-lg">grudge</span></div>
+                        </div>
+                        <div class="activity-card bg-white/5 rounded-xl p-4 flex items-center justify-between">
+                            <span class="text-gray-200">۲. to play a <span class="text-cae-gold/50">_____</span></span>
+                            <button onclick="toggleAnswer(this)" class="reveal-btn px-4 py-2 rounded-lg text-cae-gold text-sm font-semibold">نمایش جواب</button>
+                            <div class="answer-reveal hidden w-full mt-2"><span class="text-cae-gold font-bold text-lg">role</span></div>
+                        </div>
+                        <div class="activity-card bg-white/5 rounded-xl p-4 flex items-center justify-between">
+                            <span class="text-gray-200">۳. to achieve a (management) <span class="text-cae-gold/50">_____</span></span>
+                            <button onclick="toggleAnswer(this)" class="reveal-btn px-4 py-2 rounded-lg text-cae-gold text-sm font-semibold">نمایش جواب</button>
+                            <div class="answer-reveal hidden w-full mt-2"><span class="text-cae-gold font-bold text-lg">position / role</span></div>
+                        </div>
+                        <div class="activity-card bg-white/5 rounded-xl p-4 flex items-center justify-between">
+                            <span class="text-gray-200">۴. to face <span class="text-cae-gold/50">_____</span></span>
+                            <button onclick="toggleAnswer(this)" class="reveal-btn px-4 py-2 rounded-lg text-cae-gold text-sm font-semibold">نمایش جواب</button>
+                            <div class="answer-reveal hidden w-full mt-2"><span class="text-cae-gold font-bold text-lg">pressure</span></div>
+                        </div>
+                        <div class="activity-card bg-white/5 rounded-xl p-4 flex items-center justify-between">
+                            <span class="text-gray-200">۵. to be in <span class="text-cae-gold/50">_____</span> of something</span>
+                            <button onclick="toggleAnswer(this)" class="reveal-btn px-4 py-2 rounded-lg text-cae-gold text-sm font-semibold">نمایش جواب</button>
+                            <div class="answer-reveal hidden w-full mt-2"><span class="text-cae-gold font-bold text-lg">favour</span></div>
+                        </div>
+                        <div class="activity-card bg-white/5 rounded-xl p-4 flex items-center justify-between">
+                            <span class="text-gray-200">۶. to be offered a <span class="text-cae-gold/50">_____</span></span>
+                            <button onclick="toggleAnswer(this)" class="reveal-btn px-4 py-2 rounded-lg text-cae-gold text-sm font-semibold">نمایش جواب</button>
+                            <div class="answer-reveal hidden w-full mt-2"><span class="text-cae-gold font-bold text-lg">contract</span></div>
+                        </div>
+                        <div class="activity-card bg-white/5 rounded-xl p-4 flex items-center justify-between">
+                            <span class="text-gray-200">۷. to rise through the <span class="text-cae-gold/50">_____</span></span>
+                            <button onclick="toggleAnswer(this)" class="reveal-btn px-4 py-2 rounded-lg text-cae-gold text-sm font-semibold">نمایش جواب</button>
+                            <div class="answer-reveal hidden w-full mt-2"><span class="text-cae-gold font-bold text-lg">ranks</span></div>
+                        </div>
+                        <div class="activity-card bg-white/5 rounded-xl p-4 flex items-center justify-between">
+                            <span class="text-gray-200">۸. to hand in your <span class="text-cae-gold/50">_____</span></span>
+                            <button onclick="toggleAnswer(this)" class="reveal-btn px-4 py-2 rounded-lg text-cae-gold text-sm font-semibold">نمایش جواب</button>
+                            <div class="answer-reveal hidden w-full mt-2"><span class="text-cae-gold font-bold text-lg">notice</span></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- SLIDE 2: Use of English Ex 2 -->
+                <div class="slide" data-index="2">
+                    <div class="flex items-center gap-4 mb-6">
+                        <div class="number-badge w-12 h-12 rounded-xl flex items-center justify-center text-cae-navy font-bold text-xl">۲</div>
+                        <div>
+                            <h3 class="text-2xl font-bold text-white">Use of English: Meanings</h3>
+                            <p class="text-cae-gold">Exercise 2 — Collocation Meanings (Page 54)</p>
+                        </div>
+                    </div>
+                    <div class="divider-gold mb-6"></div>
+                    
+                    <div class="grid gap-4">
+                        <div class="activity-card bg-white/5 rounded-xl p-5">
+                            <div class="flex items-start gap-3">
+                                <span class="number-badge w-8 h-8 rounded-lg flex items-center justify-center text-cae-navy font-bold text-sm shrink-0 mt-1">۱</span>
+                                <div class="flex-1">
+                                    <p class="text-gray-300 mb-2">to bear someone a <span class="text-cae-gold font-semibold">grudge</span></p>
+                                    <button onclick="toggleAnswer(this)" class="reveal-btn px-4 py-2 rounded-lg text-cae-gold text-sm font-semibold mb-2">نمایش معنی</button>
+                                    <div class="answer-reveal hidden"><p class="text-gray-200 bg-black/20 p-3 rounded-lg">to continue to dislike someone because they once treated you badly or unfairly</p></div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="activity-card bg-white/5 rounded-xl p-5">
+                            <div class="flex items-start gap-3">
+                                <span class="number-badge w-8 h-8 rounded-lg flex items-center justify-center text-cae-navy font-bold text-sm shrink-0 mt-1">۲</span>
+                                <div class="flex-1">
+                                    <p class="text-gray-300 mb-2">to play a <span class="text-cae-gold font-semibold">role</span></p>
+                                    <button onclick="toggleAnswer(this)" class="reveal-btn px-4 py-2 rounded-lg text-cae-gold text-sm font-semibold mb-2">نمایش معنی</button>
+                                    <div class="answer-reveal hidden"><p class="text-gray-200 bg-black/20 p-3 rounded-lg">to be an influence in a particular situation</p></div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="activity-card bg-white/5 rounded-xl p-5">
+                            <div class="flex items-start gap-3">
+                                <span class="number-badge w-8 h-8 rounded-lg flex items-center justify-center text-cae-navy font-bold text-sm shrink-0 mt-1">۳</span>
+                                <div class="flex-1">
+                                    <p class="text-gray-300 mb-2">to achieve a (management) <span class="text-cae-gold font-semibold">position</span></p>
+                                    <button onclick="toggleAnswer(this)" class="reveal-btn px-4 py-2 rounded-lg text-cae-gold text-sm font-semibold mb-2">نمایش معنی</button>
+                                    <div class="answer-reveal hidden"><p class="text-gray-200 bg-black/20 p-3 rounded-lg">to gain a (better) job in the same company</p></div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="activity-card bg-white/5 rounded-xl p-5">
+                            <div class="flex items-start gap-3">
+                                <span class="number-badge w-8 h-8 rounded-lg flex items-center justify-center text-cae-navy font-bold text-sm shrink-0 mt-1">۴</span>
+                                <div class="flex-1">
+                                    <p class="text-gray-300 mb-2">to face <span class="text-cae-gold font-semibold">pressure</span></p>
+                                    <button onclick="toggleAnswer(this)" class="reveal-btn px-4 py-2 rounded-lg text-cae-gold text-sm font-semibold mb-2">نمایش معنی</button>
+                                    <div class="answer-reveal hidden"><p class="text-gray-200 bg-black/20 p-3 rounded-lg">to have to deal with difficult or stressful situations</p></div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="activity-card bg-white/5 rounded-xl p-5">
+                            <div class="flex items-start gap-3">
+                                <span class="number-badge w-8 h-8 rounded-lg flex items-center justify-center text-cae-navy font-bold text-sm shrink-0 mt-1">۵</span>
+                                <div class="flex-1">
+                                    <p class="text-gray-300 mb-2">to be in <span class="text-cae-gold font-semibold">favour</span> of something</p>
+                                    <button onclick="toggleAnswer(this)" class="reveal-btn px-4 py-2 rounded-lg text-cae-gold text-sm font-semibold mb-2">نمایش معنی</button>
+                                    <div class="answer-reveal hidden"><p class="text-gray-200 bg-black/20 p-3 rounded-lg">to support or agree with something</p></div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="activity-card bg-white/5 rounded-xl p-5">
+                            <div class="flex items-start gap-3">
+                                <span class="number-badge w-8 h-8 rounded-lg flex items-center justify-center text-cae-navy font-bold text-sm shrink-0 mt-1">۶</span>
+                                <div class="flex-1">
+                                    <p class="text-gray-300 mb-2">to be offered a <span class="text-cae-gold font-semibold">contract</span></p>
+                                    <button onclick="toggleAnswer(this)" class="reveal-btn px-4 py-2 rounded-lg text-cae-gold text-sm font-semibold mb-2">نمایش معنی</button>
+                                    <div class="answer-reveal hidden"><p class="text-gray-200 bg-black/20 p-3 rounded-lg">to be given the chance to work for a company</p></div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="activity-card bg-white/5 rounded-xl p-5">
+                            <div class="flex items-start gap-3">
+                                <span class="number-badge w-8 h-8 rounded-lg flex items-center justify-center text-cae-navy font-bold text-sm shrink-0 mt-1">۷</span>
+                                <div class="flex-1">
+                                    <p class="text-gray-300 mb-2">to rise through the <span class="text-cae-gold font-semibold">ranks</span></p>
+                                    <button onclick="toggleAnswer(this)" class="reveal-btn px-4 py-2 rounded-lg text-cae-gold text-sm font-semibold mb-2">نمایش معنی</button>
+                                    <div class="answer-reveal hidden"><p class="text-gray-200 bg-black/20 p-3 rounded-lg">to be given a series of promotions</p></div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="activity-card bg-white/5 rounded-xl p-5">
+                            <div class="flex items-start gap-3">
+                                <span class="number-badge w-8 h-8 rounded-lg flex items-center justify-center text-cae-navy font-bold text-sm shrink-0 mt-1">۸</span>
+                                <div class="flex-1">
+                                    <p class="text-gray-300 mb-2">to hand in your <span class="text-cae-gold font-semibold">notice</span></p>
+                                    <button onclick="toggleAnswer(this)" class="reveal-btn px-4 py-2 rounded-lg text-cae-gold text-sm font-semibold mb-2">نمایش معنی</button>
+                                    <div class="answer-reveal hidden"><p class="text-gray-200 bg-black/20 p-3 rounded-lg">to inform your boss (usually in writing) that you intend to leave your job</p></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- SLIDE 3: Use of English Ex 3 -->
+                <div class="slide" data-index="3">
+                    <div class="flex items-center gap-4 mb-6">
+                        <div class="number-badge w-12 h-12 rounded-xl flex items-center justify-center text-cae-navy font-bold text-xl">۳</div>
+                        <div>
+                            <h3 class="text-2xl font-bold text-white">Use of English: One Word</h3>
+                            <p class="text-cae-gold">Exercise 3 — Three Sentences, One Word (Page 54)</p>
+                        </div>
+                    </div>
+                    <div class="divider-gold mb-6"></div>
+                    
+                    <div class="grid gap-6">
+                        <div class="activity-card bg-white/5 rounded-xl p-5 border-l-4 border-cae-gold">
+                            <div class="flex items-center gap-3 mb-3">
+                                <span class="number-badge w-8 h-8 rounded-lg flex items-center justify-center text-cae-navy font-bold text-sm">۱</span>
+                                <span class="text-cae-gold font-bold">position</span>
+                            </div>
+                            <div class="space-y-2 text-gray-300 text-sm">
+                                <p>• Karen's in a higher <span class="text-cae-gold/60">_____</span> than me at work...</p>
+                                <p>• You're in no <span class="text-cae-gold/60">_____</span> to ask for a higher salary.</p>
+                                <p>• What's the company's <span class="text-cae-gold/60">_____</span> on hiring people...?</p>
+                            </div>
+                            <button onclick="toggleAnswer(this)" class="reveal-btn px-4 py-2 rounded-lg text-cae-gold text-sm font-semibold mt-3">نمایش کلمه</button>
+                            <div class="answer-reveal hidden mt-2"><span class="text-2xl font-bold text-cae-gold">position</span></div>
+                        </div>
+
+                        <div class="activity-card bg-white/5 rounded-xl p-5 border-l-4 border-cae-gold">
+                            <div class="flex items-center gap-3 mb-3">
+                                <span class="number-badge w-8 h-8 rounded-lg flex items-center justify-center text-cae-navy font-bold text-sm">۲</span>
+                                <span class="text-cae-gold font-bold">bear</span>
+                            </div>
+                            <div class="space-y-2 text-gray-300 text-sm">
+                                <p>• The characters <span class="text-cae-gold/60">_____</span> a strong resemblance to those...</p>
+                                <p>• <span class="text-cae-gold/60">_____</span> in mind that it should be informative...</p>
+                                <p>• I can't <span class="text-cae-gold/60">_____</span> the thought of taking on any more...</p>
+                            </div>
+                            <button onclick="toggleAnswer(this)" class="reveal-btn px-4 py-2 rounded-lg text-cae-gold text-sm font-semibold mt-3">نمایش کلمه</button>
+                            <div class="answer-reveal hidden mt-2"><span class="text-2xl font-bold text-cae-gold">bear</span></div>
+                        </div>
+
+                        <div class="activity-card bg-white/5 rounded-xl p-5 border-l-4 border-cae-gold">
+                            <div class="flex items-center gap-3 mb-3">
+                                <span class="number-badge w-8 h-8 rounded-lg flex items-center justify-center text-cae-navy font-bold text-sm">۳</span>
+                                <span class="text-cae-gold font-bold">face</span>
+                            </div>
+                            <div class="space-y-2 text-gray-300 text-sm">
+                                <p>• You need to <span class="text-cae-gold/60">_____</span> the fact that Bettina doesn't want...</p>
+                                <p>• ...climb the north <span class="text-cae-gold/60">_____</span> of the mountain today.</p>
+                                <p>• ...asked her to turn round and <span class="text-cae-gold/60">_____</span> me.</p>
+                            </div>
+                            <button onclick="toggleAnswer(this)" class="reveal-btn px-4 py-2 rounded-lg text-cae-gold text-sm font-semibold mt-3">نمایش کلمه</button>
+                            <div class="answer-reveal hidden mt-2"><span class="text-2xl font-bold text-cae-gold">face</span></div>
+                        </div>
+
+                        <div class="activity-card bg-white/5 rounded-xl p-5 border-l-4 border-cae-gold">
+                            <div class="flex items-center gap-3 mb-3">
+                                <span class="number-badge w-8 h-8 rounded-lg flex items-center justify-center text-cae-navy font-bold text-sm">۴</span>
+                                <span class="text-cae-gold font-bold">favour</span>
+                            </div>
+                            <div class="space-y-2 text-gray-300 text-sm">
+                                <p>• ...he never shows <span class="text-cae-gold/60">_____</span> to anyone...</p>
+                                <p>• ...might actually work in our <span class="text-cae-gold/60">_____</span>.</p>
+                                <p>• I owe you a <span class="text-cae-gold/60">_____</span>.</p>
+                            </div>
+                            <button onclick="toggleAnswer(this)" class="reveal-btn px-4 py-2 rounded-lg text-cae-gold text-sm font-semibold mt-3">نمایش کلمه</button>
+                            <div class="answer-reveal hidden mt-2"><span class="text-2xl font-bold text-cae-gold">favour</span></div>
+                        </div>
+
+                        <div class="activity-card bg-white/5 rounded-xl p-5 border-l-4 border-cae-gold">
+                            <div class="flex items-center gap-3 mb-3">
+                                <span class="number-badge w-8 h-8 rounded-lg flex items-center justify-center text-cae-navy font-bold text-sm">۵</span>
+                                <span class="text-cae-gold font-bold">rise</span>
+                            </div>
+                            <div class="space-y-2 text-gray-300 text-sm">
+                                <p>• ...is on the <span class="text-cae-gold/60">_____</span> again.</p>
+                                <p>• ...had no choice but to <span class="text-cae-gold/60">_____</span> against the government.</p>
+                                <p>• ...watched his students <span class="text-cae-gold/60">_____</span> one by one from their seats...</p>
+                            </div>
+                            <button onclick="toggleAnswer(this)" class="reveal-btn px-4 py-2 rounded-lg text-cae-gold text-sm font-semibold mt-3">نمایش کلمه</button>
+                            <div class="answer-reveal hidden mt-2"><span class="text-2xl font-bold text-cae-gold">rise</span></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- SLIDE 4: Listening 2 -->
+                <div class="slide" data-index="4">
+                    <div class="flex items-center gap-4 mb-6">
+                        <div class="number-badge w-12 h-12 rounded-xl flex items-center justify-center text-cae-navy font-bold text-xl"><i class="fas fa-headphones text-sm"></i></div>
+                        <div>
+                            <h3 class="text-2xl font-bold text-white">Listening 2: Sentence Completion</h3>
+                            <p class="text-cae-gold">CAE Part 2 — David Markham Talk (Page 55)</p>
+                        </div>
+                    </div>
+                    <div class="divider-gold mb-6"></div>
+                    
+                    <div class="grid gap-4">
+                        <div class="activity-card bg-white/5 rounded-xl p-5 flex flex-col md:flex-row md:items-center gap-4">
+                            <span class="number-badge w-10 h-10 rounded-full flex items-center justify-center text-cae-navy font-bold shrink-0">۱</span>
+                            <p class="text-gray-200 flex-1">David says that the key to good time management is <span class="text-cae-gold/50">_____</span>.</p>
+                            <button onclick="toggleAnswer(this)" class="reveal-btn px-5 py-2 rounded-lg text-cae-gold font-semibold shrink-0">نمایش جواب</button>
+                            <div class="answer-reveal hidden w-full"><span class="text-cae-gold font-bold text-lg">(forward) planning</span></div>
+                        </div>
+
+                        <div class="activity-card bg-white/5 rounded-xl p-5 flex flex-col md:flex-row md:items-center gap-4">
+                            <span class="number-badge w-10 h-10 rounded-full flex items-center justify-center text-cae-navy font-bold shrink-0">۲</span>
+                            <p class="text-gray-200 flex-1">It's important to have <span class="text-cae-gold/50">_____</span> expectations of what we can achieve.</p>
+                            <button onclick="toggleAnswer(this)" class="reveal-btn px-5 py-2 rounded-lg text-cae-gold font-semibold shrink-0">نمایش جواب</button>
+                            <div class="answer-reveal hidden w-full"><span class="text-cae-gold font-bold text-lg">realistic</span></div>
+                        </div>
+
+                        <div class="activity-card bg-white/5 rounded-xl p-5 flex flex-col md:flex-row md:items-center gap-4">
+                            <span class="number-badge w-10 h-10 rounded-full flex items-center justify-center text-cae-navy font-bold shrink-0">۳</span>
+                            <p class="text-gray-200 flex-1">David warns that <span class="text-cae-gold/50">_____</span> can prevent us achieving what we set out to do.</p>
+                            <button onclick="toggleAnswer(this)" class="reveal-btn px-5 py-2 rounded-lg text-cae-gold font-semibold shrink-0">نمایش جواب</button>
+                            <div class="answer-reveal hidden w-full"><span class="text-cae-gold font-bold text-lg">tiredness</span></div>
+                        </div>
+
+                        <div class="activity-card bg-white/5 rounded-xl p-5 flex flex-col md:flex-row md:items-center gap-4">
+                            <span class="number-badge w-10 h-10 rounded-full flex items-center justify-center text-cae-navy font-bold shrink-0">۴</span>
+                            <p class="text-gray-200 flex-1">He recommends giving priority to <span class="text-cae-gold/50">_____</span> if we feel overwhelmed.</p>
+                            <button onclick="toggleAnswer(this)" class="reveal-btn px-5 py-2 rounded-lg text-cae-gold font-semibold shrink-0">نمایش جواب</button>
+                            <div class="answer-reveal hidden w-full"><span class="text-cae-gold font-bold text-lg">(our) health</span></div>
+                        </div>
+
+                        <div class="activity-card bg-white/5 rounded-xl p-5 flex flex-col md:flex-row md:items-center gap-4">
+                            <span class="number-badge w-10 h-10 rounded-full flex items-center justify-center text-cae-navy font-bold shrink-0">۵</span>
+                            <p class="text-gray-200 flex-1">David advises against always trying to <span class="text-cae-gold/50">_____</span> in our work.</p>
+                            <button onclick="toggleAnswer(this)" class="reveal-btn px-5 py-2 rounded-lg text-cae-gold font-semibold shrink-0">نمایش جواب</button>
+                            <div class="answer-reveal hidden w-full"><span class="text-cae-gold font-bold text-lg">achieve perfection</span></div>
+                        </div>
+
+                        <div class="activity-card bg-white/5 rounded-xl p-5 flex flex-col md:flex-row md:items-center gap-4">
+                            <span class="number-badge w-10 h-10 rounded-full flex items-center justify-center text-cae-navy font-bold shrink-0">۶</span>
+                            <p class="text-gray-200 flex-1">Housework requires the same <span class="text-cae-gold/50">_____</span> that we need to exercise at work.</p>
+                            <button onclick="toggleAnswer(this)" class="reveal-btn px-5 py-2 rounded-lg text-cae-gold font-semibold shrink-0">نمایش جواب</button>
+                            <div class="answer-reveal hidden w-full"><span class="text-cae-gold font-bold text-lg">self-discipline</span></div>
+                        </div>
+
+                        <div class="activity-card bg-white/5 rounded-xl p-5 flex flex-col md:flex-row md:items-center gap-4">
+                            <span class="number-badge w-10 h-10 rounded-full flex items-center justify-center text-cae-navy font-bold shrink-0">۷</span>
+                            <p class="text-gray-200 flex-1">David suggests we should reserve time for those pursuits we find <span class="text-cae-gold/50">_____</span>.</p>
+                            <button onclick="toggleAnswer(this)" class="reveal-btn px-5 py-2 rounded-lg text-cae-gold font-semibold shrink-0">نمایش جواب</button>
+                            <div class="answer-reveal hidden w-full"><span class="text-cae-gold font-bold text-lg">(most) fulfilling</span></div>
+                        </div>
+
+                        <div class="activity-card bg-white/5 rounded-xl p-5 flex flex-col md:flex-row md:items-center gap-4">
+                            <span class="number-badge w-10 h-10 rounded-full flex items-center justify-center text-cae-navy font-bold shrink-0">۸</span>
+                            <p class="text-gray-200 flex-1">He says it is a mistake to think of the <span class="text-cae-gold/50">_____</span> as a form of relaxation.</p>
+                            <button onclick="toggleAnswer(this)" class="reveal-btn px-5 py-2 rounded-lg text-cae-gold font-semibold shrink-0">نمایش جواب</button>
+                            <div class="answer-reveal hidden w-full"><span class="text-cae-gold font-bold text-lg">television</span></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- SLIDE 5: Vocabulary Time Ex 1 -->
+                <div class="slide" data-index="5">
+                    <div class="flex items-center gap-4 mb-6">
+                        <div class="number-badge w-12 h-12 rounded-xl flex items-center justify-center text-cae-navy font-bold text-xl"><i class="fas fa-clock text-sm"></i></div>
+                        <div>
+                            <h3 class="text-2xl font-bold text-white">Vocabulary: Time</h3>
+                            <p class="text-cae-gold">Exercise 1 — Prepositions & Particles (Page 55)</p>
+                        </div>
+                    </div>
+                    <div class="divider-gold mb-6"></div>
+                    <p class="text-gray-300 mb-6">کلمات: <span class="inline-flex gap-2 flex-wrap"><span class="px-3 py-1 bg-cae-gold/10 border border-cae-gold/30 rounded-lg text-cae-gold-light text-sm">against</span><span class="px-3 py-1 bg-cae-gold/10 border border-cae-gold/30 rounded-lg text-cae-gold-light text-sm">aside</span><span class="px-3 py-1 bg-cae-gold/10 border border-cae-gold/30 rounded-lg text-cae-gold-light text-sm">for</span><span class="px-3 py-1 bg-cae-gold/10 border border-cae-gold/30 rounded-lg text-cae-gold-light text-sm">in</span><span class="px-3 py-1 bg-cae-gold/10 border border-cae-gold/30 rounded-lg text-cae-gold-light text-sm">off</span><span class="px-3 py-1 bg-cae-gold/10 border border-cae-gold/30 rounded-lg text-cae-gold-light text-sm">up</span></span></p>
+
+                    <div class="grid gap-4">
+                        <div class="activity-card bg-white/5 rounded-xl p-5">
+                            <p class="text-gray-200 mb-2">۱. ...what you hope to achieve <span class="text-cae-gold/50">_____</span> the time available.</p>
+                            <button onclick="toggleAnswer(this)" class="reveal-btn px-4 py-2 rounded-lg text-cae-gold text-sm font-semibold">نمایش جواب</button>
+                            <div class="answer-reveal hidden mt-2"><span class="text-cae-gold font-bold text-xl">in</span></div>
+                        </div>
+                        <div class="activity-card bg-white/5 rounded-xl p-5">
+                            <p class="text-gray-200 mb-2">۲. ...you have to phone in sick and take time <span class="text-cae-gold/50">_____</span> work.</p>
+                            <button onclick="toggleAnswer(this)" class="reveal-btn px-4 py-2 rounded-lg text-cae-gold text-sm font-semibold">نمایش جواب</button>
+                            <div class="answer-reveal hidden mt-2"><span class="text-cae-gold font-bold text-xl">off</span></div>
+                        </div>
+                        <div class="activity-card bg-white/5 rounded-xl p-5">
+                            <p class="text-gray-200 mb-2">۳. ...if time is <span class="text-cae-gold/50">_____</span> you, if you're pressed <span class="text-cae-gold/50">_____</span> time...</p>
+                            <button onclick="toggleAnswer(this)" class="reveal-btn px-4 py-2 rounded-lg text-cae-gold text-sm font-semibold">نمایش جواب</button>
+                            <div class="answer-reveal hidden mt-2"><span class="text-cae-gold font-bold text-xl">against, for</span></div>
+                        </div>
+                        <div class="activity-card bg-white/5 rounded-xl p-5">
+                            <p class="text-gray-200 mb-2">۴. ...what we all work for is to make time <span class="text-cae-gold/50">_____</span> ourselves, to free <span class="text-cae-gold/50">_____</span> time...</p>
+                            <button onclick="toggleAnswer(this)" class="reveal-btn px-4 py-2 rounded-lg text-cae-gold text-sm font-semibold">نمایش جواب</button>
+                            <div class="answer-reveal hidden mt-2"><span class="text-cae-gold font-bold text-xl">for, up</span></div>
+                        </div>
+                        <div class="activity-card bg-white/5 rounded-xl p-5">
+                            <p class="text-gray-200 mb-2">۵. It's essential to set <span class="text-cae-gold/50">_____</span> enough time to pursue your interests...</p>
+                            <button onclick="toggleAnswer(this)" class="reveal-btn px-4 py-2 rounded-lg text-cae-gold text-sm font-semibold">نمایش جواب</button>
+                            <div class="answer-reveal hidden mt-2"><span class="text-cae-gold font-bold text-xl">aside</span></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- SLIDE 6: Vocabulary Time Ex 2 -->
+                <div class="slide" data-index="6">
+                    <div class="flex items-center gap-4 mb-6">
+                        <div class="number-badge w-12 h-12 rounded-xl flex items-center justify-center text-cae-navy font-bold text-xl"><i class="fas fa-clock text-sm"></i></div>
+                        <div>
+                            <h3 class="text-2xl font-bold text-white">Vocabulary: Time Collocations</h3>
+                            <p class="text-cae-gold">Exercise 2 — Words before "time" (Page 55)</p>
+                        </div>
+                    </div>
+                    <div class="divider-gold mb-6"></div>
+                    <p class="text-gray-300 mb-6">کلمات: <span class="inline-flex gap-2 flex-wrap"><span class="px-3 py-1 bg-cae-gold/10 border border-cae-gold/30 rounded-lg text-cae-gold-light text-sm">half</span><span class="px-3 py-1 bg-cae-gold/10 border border-cae-gold/30 rounded-lg text-cae-gold-light text-sm">flying</span><span class="px-3 py-1 bg-cae-gold/10 border border-cae-gold/30 rounded-lg text-cae-gold-light text-sm">harvest</span><span class="px-3 py-1 bg-cae-gold/10 border border-cae-gold/30 rounded-lg text-cae-gold-light text-sm">prime</span><span class="px-3 py-1 bg-cae-gold/10 border border-cae-gold/30 rounded-lg text-cae-gold-light text-sm">record-breaking</span><span class="px-3 py-1 bg-cae-gold/10 border border-cae-gold/30 rounded-lg text-cae-gold-light text-sm">sale</span><span class="px-3 py-1 bg-cae-gold/10 border border-cae-gold/30 rounded-lg text-cae-gold-light text-sm">spare</span></span></p>
+
+                    <div class="grid md:grid-cols-2 gap-4">
+                        <div class="activity-card bg-white/5 rounded-xl p-5">
+                            <div class="flex items-center justify-between mb-3">
+                                <span class="text-gray-300">kick-off / injury</span>
+                                <span class="text-xs text-gray-500">football</span>
+                            </div>
+                            <button onclick="toggleAnswer(this)" class="reveal-btn w-full py-2 rounded-lg text-cae-gold font-semibold">نمایش کلمه</button>
+                            <div class="answer-reveal hidden mt-3 text-center"><span class="text-2xl font-bold text-cae-gold">half</span><p class="text-sm text-gray-400 mt-1">half-time / injury time</p></div>
+                        </div>
+
+                        <div class="activity-card bg-white/5 rounded-xl p-5">
+                            <div class="flex items-center justify-between mb-3">
+                                <span class="text-gray-300">qualifying / winning</span>
+                                <span class="text-xs text-gray-500">athletics</span>
+                            </div>
+                            <button onclick="toggleAnswer(this)" class="reveal-btn w-full py-2 rounded-lg text-cae-gold font-semibold">نمایش کلمه</button>
+                            <div class="answer-reveal hidden mt-3 text-center"><span class="text-2xl font-bold text-cae-gold">record-breaking</span><p class="text-sm text-gray-400 mt-1">record-breaking time</p></div>
+                        </div>
+
+                        <div class="activity-card bg-white/5 rounded-xl p-5">
+                            <div class="flex items-center justify-between mb-3">
+                                <span class="text-gray-300">arrival / departure</span>
+                                <span class="text-xs text-gray-500">aeroplanes</span>
+                            </div>
+                            <button onclick="toggleAnswer(this)" class="reveal-btn w-full py-2 rounded-lg text-cae-gold font-semibold">نمایش کلمه</button>
+                            <div class="answer-reveal hidden mt-3 text-center"><span class="text-2xl font-bold text-cae-gold">flying</span><p class="text-sm text-gray-400 mt-1">flying time</p></div>
+                        </div>
+
+                        <div class="activity-card bg-white/5 rounded-xl p-5">
+                            <div class="flex items-center justify-between mb-3">
+                                <span class="text-gray-300">peak viewing / off-peak viewing</span>
+                                <span class="text-xs text-gray-500">television</span>
+                            </div>
+                            <button onclick="toggleAnswer(this)" class="reveal-btn w-full py-2 rounded-lg text-cae-gold font-semibold">نمایش کلمه</button>
+                            <div class="answer-reveal hidden mt-3 text-center"><span class="text-2xl font-bold text-cae-gold">prime</span><p class="text-sm text-gray-400 mt-1">prime time</p></div>
+                        </div>
+
+                        <div class="activity-card bg-white/5 rounded-xl p-5">
+                            <div class="flex items-center justify-between mb-3">
+                                <span class="text-gray-300">opening / closing</span>
+                                <span class="text-xs text-gray-500">shops</span>
+                            </div>
+                            <button onclick="toggleAnswer(this)" class="reveal-btn w-full py-2 rounded-lg text-cae-gold font-semibold">نمایش کلمه</button>
+                            <div class="answer-reveal hidden mt-3 text-center"><span class="text-2xl font-bold text-cae-gold">sale</span><p class="text-sm text-gray-400 mt-1">sale time? Actually: <strong>opening time / closing time</strong> — but answer key says <strong>sale</strong> (possibly sale time)</p></div>
+                        </div>
+
+                        <div class="activity-card bg-white/5 rounded-xl p-5">
+                            <div class="flex items-center justify-between mb-3">
+                                <span class="text-gray-300">sowing / milking</span>
+                                <span class="text-xs text-gray-500">farming</span>
+                            </div>
+                            <button onclick="toggleAnswer(this)" class="reveal-btn w-full py-2 rounded-lg text-cae-gold font-semibold">نمایش کلمه</button>
+                            <div class="answer-reveal hidden mt-3 text-center"><span class="text-2xl font-bold text-cae-gold">harvest</span><p class="text-sm text-gray-400 mt-1">harvest time</p></div>
+                        </div>
+                    </div>
+                    
+                    <div class="mt-6 p-4 bg-cae-gold/10 border border-cae-gold/30 rounded-xl">
+                        <p class="text-cae-gold-light text-sm"><i class="fas fa-lightbulb ml-2"></i> نکته: Spare در گروه free, leisure, spare time قرار دارد (زمان فراغت).</p>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- Navigation Footer -->
+            <div class="bg-black/30 p-6 border-t border-cae-gold/20">
+                <div class="flex justify-between items-center">
+                    <button onclick="prevSlide()" class="nav-btn px-6 py-3 rounded-xl bg-white/5 border border-cae-gold/30 text-cae-gold hover:bg-cae-gold/10 flex items-center gap-2">
+                        <i class="fas fa-arrow-right"></i>
+                        <span class="hidden md:inline">قبلی</span>
+                    </button>
+                    
+                    <div class="text-center">
+                        <span id="slideCounter" class="text-cae-gold font-bold text-lg">۱ / ۷</span>
+                    </div>
+                    
+                    <button onclick="nextSlide()" class="nav-btn px-6 py-3 rounded-xl bg-gradient-to-r from-cae-gold to-yellow-600 text-cae-navy font-bold hover:shadow-lg hover:shadow-yellow-500/30 flex items-center gap-2">
+                        <span class="hidden md:inline">بعدی</span>
+                        <i class="fas fa-arrow-left"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Footer Credit -->
+        <div class="mt-6 text-center text-gray-500 text-sm">
+            <p>Designed for <span class="text-cae-gold">Ensieh Safarian</span> | CAE Preparation | Ready for CAE Coursebook</p>
+        </div>
+    </div>
+
+    <script>
+        let currentSlide = 0;
+        const totalSlides = 7;
+        
+        function updateSlide() {
+            document.querySelectorAll('.slide').forEach((slide, index) => {
+                slide.classList.remove('active');
+                if (index === currentSlide) {
+                    slide.classList.add('active');
+                }
+            });
+            
+            document.querySelectorAll('.slide-dot').forEach((dot, index) => {
+                if (index === currentSlide) {
+                    dot.classList.remove('bg-cae-gold/30');
+                    dot.classList.add('bg-cae-gold', 'scale-125');
+                } else {
+                    dot.classList.add('bg-cae-gold/30');
+                    dot.classList.remove('bg-cae-gold', 'scale-125');
+                }
+            });
+            
+            document.getElementById('slideCounter').textContent = (currentSlide + 1) + ' / ' + totalSlides;
+        }
+        
+        function nextSlide() {
+            if (currentSlide < totalSlides - 1) {
+                currentSlide++;
+                updateSlide();
+            }
+        }
+        
+        function prevSlide() {
+            if (currentSlide > 0) {
+                currentSlide--;
+                updateSlide();
+            }
+        }
+        
+        function goToSlide(index) {
+            currentSlide = index;
+            updateSlide();
+        }
+        
+        function toggleAnswer(btn) {
+            const card = btn.closest('.activity-card');
+            const answer = card.querySelector('.answer-reveal');
+            
+            if (answer.classList.contains('hidden')) {
+                answer.classList.remove('hidden');
+                setTimeout(() => answer.classList.add('show'), 10);
+                btn.innerHTML = '<i class="fas fa-eye-slash ml-1"></i> پنهان کردن';
+                btn.classList.add('bg-cae-gold/30');
+            } else {
+                answer.classList.remove('show');
+                setTimeout(() => answer.classList.add('hidden'), 500);
+                btn.innerHTML = 'نمایش جواب';
+                btn.classList.remove('bg-cae-gold/30');
+            }
+        }
+        
+        // Keyboard navigation
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowLeft') nextSlide();
+            if (e.key === 'ArrowRight') prevSlide();
+        });
+        
+        // Touch swipe support
+        let touchStartX = 0;
+        let touchEndX = 0;
+        
+        document.addEventListener('touchstart', (e) => {
+            touchStartX = e.changedTouches[0].screenX;
+        });
+        
+        document.addEventListener('touchend', (e) => {
+            touchEndX = e.changedTouches[0].screenX;
+            if (touchStartX - touchEndX > 50) nextSlide();
+            if (touchEndX - touchStartX > 50) prevSlide();
+        });
+        
+        updateSlide();
+    </script>
+</body>
+</html>'''
+
+with open('/mnt/agents/output/CAE_Interactive_Poster_Ensieh_Safarian.html', 'w', encoding='utf-8') as f:
+    f.write(html_content)
+
+print("File created successfully!")
+print(f"File size: {len(html_content)} characters")
